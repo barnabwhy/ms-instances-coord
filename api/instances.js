@@ -6,7 +6,10 @@ module.exports = async function handler(req, res, instances) {
   try {
     if(!req.query.id) return res.status(400).send()
     let ip = req.socket.remoteAddress;
-    if(process.env.TRUST_PROXY) ip = req.headers['x-real-ip'];
+    if(process.env.TRUST_PROXY) {
+      if(!req.headers['x-forwarded-for']) return res.status(401).send()
+      ip = req.headers['x-forwarded-for'].split(",")[0];
+    }
     if(ip.startsWith("::ffff:")) ip = ip.slice(7);
     let selfFound = false;
     let instancesWithSelfs = await Promise.all(instances.map(inst => {
