@@ -11,12 +11,16 @@ fs.watch(pathToInstances, (eventType, filename) => {
     try {
         if(eventType == "change") {
             let fileData = fs.readFileSync(pathToInstances, 'utf-8');
-            fileJson = JSON.parse(fileData);
+            let fileJson = JSON.parse(fileData);
             instances = fileJson;
         }
     } catch(e) {
         console.log(e)
     }
+});
+
+app.get('/', (req, res) => {
+    res.send("This is the master server coordinator, you shouldn't be here.")
 });
 
 let files = fs.readdirSync('api');
