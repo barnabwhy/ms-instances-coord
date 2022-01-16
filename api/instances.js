@@ -13,7 +13,6 @@ module.exports = async function handler(req, res, instances) {
     let encrypted = encrypt(JSON.stringify(instances), publicKey);
     res.status(200).send(encrypted);
   } catch (e) {
-    console.log(e)
     res.status(500).send(); 
   }
 }
