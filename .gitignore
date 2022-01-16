@@ -77,3 +77,4 @@ typings/
 
 # Project specific
 instances.json
+*.pem
