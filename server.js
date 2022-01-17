@@ -34,7 +34,7 @@ fs.watch(pathToInstances, (eventType, filename) => {
 });
 
 app.get('/', (req, res) => {
-    res.send("This is the master server coordinator, you shouldn't be here.")
+    res.send("This is the master server remote instance host, you shouldn't be here.")
 });
 
 app.get('/instances', (req, res) => {
