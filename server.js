@@ -5,9 +5,9 @@ var key  = fs.readFileSync('web_key.pem').toString();
 var cert = fs.readFileSync('web_cert.pem').toString();
 
 const https = require('https');
-const serverHTTPS = https.createServer({key, cert}, app);
+const serverHTTPS = https.createServer({key, cert}, handler);
 const http = require('http');
-const serverHTTP = http.createServer(app);
+const serverHTTP = http.createServer(handler);
 
 const port = process.env.LISTEN_PORT || 80
 const port_secure = process.env.LISTEN_PORT_SECURE || 80
