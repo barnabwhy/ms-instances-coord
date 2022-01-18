@@ -10,7 +10,7 @@ const http = require('http');
 const serverHTTP = http.createServer(handler);
 
 const port = process.env.LISTEN_PORT || 80
-const port_secure = process.env.LISTEN_PORT_SECURE || 80
+const port_secure = process.env.LISTEN_PORT_SECURE || 443
 
 const crypto = require('crypto');
 let publicKey = fs.readFileSync(process.env.PUB_KEY_PATH ||"./rsa_4096_pub.pem").toString()
