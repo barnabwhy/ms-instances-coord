@@ -53,11 +53,7 @@ const proxyWeb = function(req, res, options) {
 }
 
 async function handler(req, res) {
-    if(req.url == '' || req.url == '/') {
-        res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.write("This is the master server remote instance host, you shouldn't be here.")
-        res.end();
-    } else if(req.url == '/instances') {
+    if(req.url == '/instances') {
         res.writeHead(200, { 'Content-Type': 'text/plain' });
         res.write(encrypted);
         res.end();
