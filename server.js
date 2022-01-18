@@ -5,12 +5,15 @@ const app = express()
 const port = process.env.LISTEN_PORT || 80
 const port_secure = process.env.LISTEN_PORT_SECURE || 443
 
+const fs = require('fs');
+var key  = fs.readFileSync('web_key.pem').toString();
+var cert = fs.readFileSync('web_cert.pem').toString();
+
 const https = require('https');
 const serverHTTPS = https.createServer({key, cert}, app);
 const http = require('http');
 const serverHTTP = http.createServer(app);
 
-const fs = require('fs');
 const crypto = require('crypto');
 let publicKey = fs.readFileSync(process.env.PUB_KEY_PATH ||"./rsa_4096_pub.pem").toString()
 
