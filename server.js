@@ -1,10 +1,17 @@
 require( "dotenv" ).config()
 
-const express = require('express')
-const app = express()
-const port = process.env.LISTEN_PORT || 80
-
 const fs = require('fs');
+var key  = fs.readFileSync('web_key.pem').toString();
+var cert = fs.readFileSync('web_cert.pem').toString();
+
+const https = require('https');
+const serverHTTPS = https.createServer({key, cert}, app);
+const http = require('http');
+const serverHTTP = http.createServer(app);
+
+const port = process.env.LISTEN_PORT || 80
+const port_secure = process.env.LISTEN_PORT_SECURE || 80
+
 const crypto = require('crypto');
 let publicKey = fs.readFileSync(process.env.PUB_KEY_PATH ||"./rsa_4096_pub.pem").toString()
 
@@ -33,25 +40,51 @@ fs.watch(pathToInstances, (eventType, filename) => {
     }
 });
 
-app.get('/', (req, res) => {
-    res.send("This is the master server remote instance host, you shouldn't be here.")
-});
+const httpProxy = require('http-proxy');
 
-app.get('/instances', (req, res) => {
-    try {
-        res.status(200).send(encrypted);
-    } catch (e) {
-        res.status(500).send(); 
-    }
-});
-app.get('/addresses', (req, res) => {
-    try {
-        res.status(200).json(addresses);
-      } catch (e) {
-        res.status(500).send(); 
-    }
-});
+var proxy = httpProxy.createProxyServer({});
+const proxyWeb = function(req, res, options) {
+    return new Promise((resolve, reject) => {
+        proxy.web(req, res, options, (err, req) => {
+            if(err) reject(err)
+            else resolve(req)
+        });
+    })
+}
 
-app.listen(port, () => {
-  console.log(`Master server coordinator listening on port ${port}`)
+async function handler(req, res) {
+    if(req.url == '' || req.url == '/') {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.write("This is the master server remote instance host, you shouldn't be here.")
+        res.end();
+    } else if(req.url == '/instances') {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.write(encrypted);
+        res.end();
+    } else if(req.url == '/addresses') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.write(addresses);
+        res.end();
+    } else {
+        let servers = shuffleArray(addresses);
+        
+        let done = false;
+        for(let i = 0; i < servers.length; i++) {
+            if(done) return
+            try {
+                await proxyWeb(req, res, { target: servers[i] });
+                done = true
+            }catch (e) {
+                if(e.code != 'ECONNREFUSED') console.log(e)
+            }
+
+        }
+    }
+}
+
+serverHTTP.listen(port, () => {
+    console.log(`Master server coordinator listening on port ${port}`)
+})
+serverHTTPS.listen(port_secure, () => {
+     console.log(`Master server coordinator listening on port ${port_secure}`)
 })
