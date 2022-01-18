@@ -3,6 +3,12 @@ require( "dotenv" ).config()
 const express = require('express')
 const app = express()
 const port = process.env.LISTEN_PORT || 80
+const port_secure = process.env.LISTEN_PORT_SECURE || 443
+
+const https = require('https');
+const serverHTTPS = https.createServer({key, cert}, app);
+const http = require('http');
+const serverHTTP = http.createServer(app);
 
 const fs = require('fs');
 const crypto = require('crypto');
@@ -52,6 +58,10 @@ app.get('/addresses', (req, res) => {
     }
 });
 
-app.listen(port, () => {
-  console.log(`Master server coordinator listening on port ${port}`)
+serverHTTP.listen(port, () => {
+    console.log(`Master server coordinator listening on port ${port}`)
 })
+serverHTTPS.listen(port_secure, () => {
+    console.log(`Master server coordinator listening on port ${port_secure}`)
+})
+   
