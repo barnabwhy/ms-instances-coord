@@ -77,4 +77,5 @@ typings/
 
 # Project specific
 instances.json
+mainmenupromodata.json
 *.pem

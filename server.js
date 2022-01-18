@@ -42,6 +42,21 @@ fs.watch(pathToInstances, (eventType, filename) => {
     }
 });
 
+let pathToMainmenupromodata = process.env.MAINMENUPROMODATA_PATH || './mainmenupromodata.json';
+let mainmenupromodata = JSON.parse(fs.readFileSync(pathToMainmenupromodata, 'utf-8'));
+
+fs.watch(pathToMainmenupromodata, (eventType, filename) => {
+    try {
+        if(eventType == "change") {
+            let fileData = fs.readFileSync(pathToMainmenupromodata, 'utf-8');
+            let fileJson = JSON.parse(fileData);
+            mainmenupromodata = fileJson;
+        }
+    } catch(e) {
+        console.log(e)
+    }
+});
+
 app.get('/', (req, res) => {
     res.send("This is the master server remote instance host, you shouldn't be here.")
 });
@@ -57,6 +72,13 @@ app.get('/addresses', (req, res) => {
     try {
         res.status(200).json(addresses);
       } catch (e) {
+        res.status(500).send(); 
+    }
+});
+app.get('/mainmenupromos', (req, res) => {
+    try {
+        res.status(200).json(mainmenupromodata);
+    } catch (e) {
         res.status(500).send(); 
     }
 });
